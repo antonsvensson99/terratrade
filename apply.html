@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="sv">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Ansök om företagskonto – TerraTrade</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root{--bg:#0e1a11;--bg2:#122218;--leaf1:#8bd17c;--leaf2:#2fbf71;--leaf3:#77e3c3;--text:#edf5ee;--muted:#b6c7b8;--card:#16271e;--line:#24432f;--cta:#50c878;--cta2:#3ebd94;--ink:#082013}
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;color:var(--text);background:
+      radial-gradient(1200px 800px at 80% -10%, rgba(47,191,113,.15), transparent 60%),
+      radial-gradient(900px 700px at 0% 100%, rgba(119,227,195,.10), transparent 60%),
+      linear-gradient(180deg,var(--bg),var(--bg2));min-height:100svh}
+    header{border-bottom:1px solid rgba(255,255,255,.06)} .container{max-width:900px;margin:0 auto;padding:18px 24px}
+    .row{display:flex;justify-content:space-between;align-items:center;gap:12px}
+    .panel{border:1px solid var(--line);background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.01)) var(--card);border-radius:18px;box-shadow:0 30px 80px rgba(0,0,0,.45);padding:18px;margin-top:20px}
+    h1{margin:0 0 6px}.muted{color:var(--muted)}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:12px}
+    label{font-weight:700}
+    input,textarea{background:rgba(255,255,255,.03);border:1px solid var(--line);color:var(--text);padding:12px;border-radius:12px}
+    textarea{min-height:110px;resize:vertical} .hint{font-size:12px;color:var(--muted)}
+    .btn{display:inline-flex;align-items:center;gap:8px;padding:12px 18px;border-radius:12px;font-weight:800;border:1px solid var(--line);cursor:pointer}
+    .primary{background:var(--cta);color:var(--ink);border-color:transparent} .primary:hover{background:var(--cta2)}
+    .ghost{background:transparent;color:var(--text)}
+    .msg{margin-top:12px;padding:10px;border-radius:10px}
+    .err{background:rgba(255,106,106,.12);border:1px solid rgba(255,106,106,.5);color:#ffdede}
+    .ok{background:rgba(80,200,120,.12);border:1px solid rgba(80,200,120,.5);color:#dff7e8}
+    @media (max-width:800px){.grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+<header class="container"><div class="row"><a href="index.html">← Start</a><a href="login.html">Logga in</a></div></header>
+<main class="container">
+  <section class="panel">
+    <h1>Ansök om företagskonto</h1>
+    <p class="muted">Sökande blir företagsadmin när en huvudadmin godkänner ansökan.</p>
+    <div id="msg" class="msg" style="display:none"></div>
+    <form id="f" novalidate>
+      <div class="grid">
+        <div><label>Företagsnamn *</label><input id="companyName" required placeholder="Acme Entreprenad AB"><div class="hint">Måste vara unikt (kontroll vid godkännande).</div></div>
+        <div><label>Organisationsnummer *</label><input id="orgNo" required placeholder="559999-1234"><div class="hint">Måste vara unikt (kontroll vid godkännande).</div></div>
+        <div><label>Kontaktperson *</label><input id="contactName" required placeholder="För- och efternamn"></div>
+        <div><label>E-post *</label><input id="email" type="email" required placeholder="namn@foretag.se"></div>
+        <div style="grid-column:1/-1"><label>Meddelande</label><textarea id="message" placeholder="Kort beskrivning av behov/överskott, plats m.m."></textarea></div>
+        <div><label>Lösenord *</label><input id="password" type="password" required minlength="8" placeholder="Minst 8 tecken"></div>
+        <div><label>Bekräfta lösenord *</label><input id="password2" type="password" required minlength="8" placeholder="Skriv igen"></div>
+      </div>
+      <div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap">
+        <button type="submit" class="btn primary">Skicka ansökan</button>
+        <a class="btn ghost" href="index.html">Avbryt</a>
+      </div>
+      <p class="hint">Genom att skicka ansökan godkänner du att vi behandlar uppgifterna för granskning.</p>
+    </form>
+    <div id="done" style="display:none">
+      <div class="ok msg">Tack! Din ansökan är registrerad med status <b>pending</b>. Du får e-post när den har granskats.</div>
+      <div style="margin-top:12px;display:flex;gap:10px"><a class="btn ghost" href="login.html">Gå till inloggning</a><a class="btn ghost" href="index.html">Till startsidan</a></div>
+    </div>
+  </section>
+</main>
+
+<script>
+const supabase=window.supabase.createClient(
+  "https://vkapxmpecvmrquockugi.supabase.co",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZrYXB4bXBlY3ZtcnF1b2NrdWdpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjExMjU3MjYsImV4cCI6MjA3NjcwMTcyNn0.VYTNc3gGQLe5KJIP2952I549h9n1SZiycSYQ9MXPdPs"
+);
+const $=id=>document.getElementById(id);
+function show(type,txt){const m=$("msg");m.className="msg "+(type==="error"?"err":"ok");m.textContent=txt;m.style.display="block"}
+
+$("f").addEventListener("submit", async (e)=>{
+  e.preventDefault();
+  const name=$("companyName").value.trim();
+  const org=$("orgNo").value.trim();
+  const contact=$("contactName").value.trim();
+  const email=$("email").value.trim().toLowerCase();
+  const pass=$("password").value, pass2=$("password2").value;
+  const message=$("message").value.trim();
+  if(!name||!org||!contact||!email||!pass||!pass2){ show("error","Fyll i alla obligatoriska fält."); return; }
+  if(pass.length<8){ show("error","Lösenordet måste vara minst 8 tecken."); return; }
+  if(pass!==pass2){ show("error","Lösenorden matchar inte."); return; }
+
+  // 1) Skapa konto (eller logga in om det redan finns)
+  const { error: signErr } = await supabase.auth.signUp({ email, password: pass });
+  if (signErr && !/already registered/i.test(signErr.message)) { show("error", signErr.message); return; }
+
+  // 2) Hämta inloggad användare
+  const { data:{ user } } = await supabase.auth.getUser();
+  if(!user){ show("error","Kunde inte hämta användare efter sign up."); return; }
+
+  // 3) Skapa ansökan (RLS kräver applicant_user_id=auth.uid())
+  const { error: insErr } = await supabase.from("applications").insert({
+    applicant_user_id: user.id,
+    company_name: name,
+    org_no: org,
+    contact_name: contact,
+    email,
+    message
+  });
+  if(insErr){ show("error", insErr.message); return; }
+
+  $("f").style.display="none";
+  $("done").style.display="block";
+});
+</script>
+</body>
+</html>
