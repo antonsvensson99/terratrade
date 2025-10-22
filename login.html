@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="sv">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Logga in – TerraTrade</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root{--bg:#0e1a11;--bg2:#122218;--leaf:#50c878;--leaf2:#3ebd94;--line:#24432f;--text:#edf5ee;--muted:#b6c7b8;--card:#16271e}
+    *{box-sizing:border-box} body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;color:var(--text);background:
+      radial-gradient(1000px 700px at 80% -10%, rgba(47,191,113,.15), transparent 60%),linear-gradient(180deg,var(--bg),var(--bg2));min-height:100svh}
+    .container{max-width:420px;margin:0 auto;padding:24px}
+    .panel{border:1px solid var(--line);background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.01)) var(--card);border-radius:16px;padding:18px;margin-top:40px}
+    h1{margin:0 0 6px}.muted{color:var(--muted)}
+    input{width:100%;background:rgba(255,255,255,.03);border:1px solid var(--line);color:var(--text);padding:12px;border-radius:10px;margin-top:10px}
+    button{width:100%;background:var(--leaf);border:none;color:#082013;padding:12px;border-radius:10px;font-weight:800;cursor:pointer;margin-top:12px}
+    button:hover{background:var(--leaf2)} .row{display:flex;gap:10px;align-items:center;justify-content:space-between;margin-top:10px}
+    .ghost{background:transparent;border:1px solid var(--line);color:var(--text)}
+    a{color:var(--text)} .msg{margin-top:12px;padding:10px;border-radius:10px}
+    .err{background:rgba(255,106,106,.12);border:1px solid rgba(255,106,106,.5);color:#ffdede}
+    .ok{background:rgba(80,200,120,.12);border:1px solid rgba(80,200,120,.5);color:#dff7e8}
+    .small{font-size:13px}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a href="index.html">← Till startsidan</a>
+    <div class="panel">
+      <h1>Logga in</h1>
+      <p class="muted small">Har du inget konto? <a href="apply.html">Ansök om företagskonto</a>.</p>
+      <div id="alert" class="msg" style="display:none"></div>
+      <label class="small" for="email">E-post</label>
+      <input id="email" type="email" placeholder="namn@foretag.se" autocomplete="email" />
+      <label class="small" for="password">Lösenord</label>
+      <input id="password" type="password" placeholder="••••••••" autocomplete="current-password" />
+      <button id="loginBtn">Logga in</button>
+      <button class="ghost" id="logoutBtn" style="display:none">Logga ut</button>
+      <div class="row small"><a href="#" id="forgot">Glömt lösenord?</a><a href="apply.html">Ansök</a></div>
+    </div>
+  </div>
+<script>
+const supabase = window.supabase.createClient(
+  "https://vkapxmpecvmrquockugi.supabase.co",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZrYXB4bXBlY3ZtcnF1b2NrdWdpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjExMjU3MjYsImV4cCI6MjA3NjcwMTcyNn0.VYTNc3gGQLe5KJIP2952I549h9n1SZiycSYQ9MXPdPs"
+);
+const $=id=>document.getElementById(id);
+function notice(t,txt){const b=$("alert");b.className="msg "+(t==="error"?"err":"ok");b.textContent=txt;b.style.display="block"}
+function clearNotice(){const b=$("alert");b.style.display="none";b.textContent=""}
+
+async function routeAfterLogin(){
+  const { data:{ user } } = await supabase.auth.getUser();
+  if(!user){ $("logoutBtn").style.display="none"; return; }
+  $("logoutBtn").style.display="inline-block";
+  const { data: profile, error } = await supabase.from("profiles").select("role, company_id").eq("user_id", user.id).single();
+  if(error){ notice("error","Kunde inte läsa profil: "+error.message); return; }
+  if(profile.role==="admin"){ location.href="admin.html"; return; }
+  if(profile.role==="company_admin"){ location.href="company-admin.html"; return; }
+  if(!profile.company_id){ notice("ok","Din ansökan väntar på godkännande eller inbjudan."); return; }
+  location.href="user.html";
+}
+
+$("loginBtn").onclick=async()=>{
+  clearNotice();
+  const email=$("email").value.trim(); const password=$("password").value;
+  if(!email||!password){ notice("error","Fyll i e-post och lösenord."); return; }
+  const { error } = await supabase.auth.signInWithPassword({ email, password });
+  if(error){ notice("error", error.message);return; }
+  notice("ok","Inloggad."); routeAfterLogin();
+};
+$("logoutBtn").onclick=async()=>{ await supabase.auth.signOut(); $("logoutBtn").style.display="none"; notice("ok","Utloggad.") };
+$("forgot").onclick=async(e)=>{ e.preventDefault(); const email=$("email").value.trim();
+  if(!email){ notice("error","Fyll i e-post först."); return; }
+  const { error } = await supabase.auth.resetPasswordForEmail(email,{ redirectTo: location.origin + "/reset.html" });
+  if(error){ notice("error", error.message); return; }
+  notice("ok","Länk för återställning skickad om adressen finns.");
+};
+(async()=>{ const { data:{ session } }=await supabase.auth.getSession(); if(session){ routeAfterLogin(); }
+  supabase.auth.onAuthStateChange(()=>routeAfterLogin()); })();
+</script>
+</body>
+</html>
