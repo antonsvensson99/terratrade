@@ -12,16 +12,21 @@
       radial-gradient(1200px 800px at 80% -10%, rgba(47,191,113,.15), transparent 60%),
       radial-gradient(900px 700px at 0% 100%, rgba(119,227,195,.10), transparent 60%),
       linear-gradient(180deg,var(--bg),var(--bg2));min-height:100svh}
-    header{border-bottom:1px solid rgba(255,255,255,.06)} .container{max-width:900px;margin:0 auto;padding:18px 24px}
+    header{border-bottom:1px solid rgba(255,255,255,.06)}
+    .container{max-width:900px;margin:0 auto;padding:18px 24px}
     .row{display:flex;justify-content:space-between;align-items:center;gap:12px}
-    .panel{border:1px solid var(--line);background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.01)) var(--card);border-radius:18px;box-shadow:0 30px 80px rgba(0,0,0,.45);padding:18px;margin-top:20px}
+    .panel{border:1px solid var(--line);background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.01)) var(--card);
+      border-radius:18px;box-shadow:0 30px 80px rgba(0,0,0,.45);padding:18px;margin-top:20px}
     h1{margin:0 0 6px}.muted{color:var(--muted)}
     .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:12px}
     label{font-weight:700}
     input,textarea{background:rgba(255,255,255,.03);border:1px solid var(--line);color:var(--text);padding:12px;border-radius:12px}
-    textarea{min-height:110px;resize:vertical} .hint{font-size:12px;color:var(--muted)}
-    .btn{display:inline-flex;align-items:center;gap:8px;padding:12px 18px;border-radius:12px;font-weight:800;border:1px solid var(--line);cursor:pointer}
-    .primary{background:var(--cta);color:var(--ink);border-color:transparent} .primary:hover{background:var(--cta2)}
+    textarea{min-height:110px;resize:vertical}
+    .hint{font-size:12px;color:var(--muted)}
+    .btn{display:inline-flex;align-items:center;gap:8px;padding:12px 18px;border-radius:12px;font-weight:800;
+      border:1px solid var(--line);cursor:pointer;text-decoration:none}
+    .primary{background:var(--cta);color:var(--ink);border-color:transparent}
+    .primary:hover{background:var(--cta2)}
     .ghost{background:transparent;color:var(--text)}
     .msg{margin-top:12px;padding:10px;border-radius:10px}
     .err{background:rgba(255,106,106,.12);border:1px solid rgba(255,106,106,.5);color:#ffdede}
@@ -31,11 +36,18 @@
   </style>
 </head>
 <body>
-<header class="container"><div class="row"><a href="index.html">← Start</a><a href="login.html">Logga in</a></div></header>
+<header class="container">
+  <div class="row">
+    <a href="index.html">← Start</a>
+    <a href="login.html">Logga in</a>
+  </div>
+</header>
+
 <main class="container">
   <section class="panel">
     <h1>Ansök om företagskonto</h1>
     <p class="muted small">Sökande blir <b>företagsadmin</b> när en huvudadmin har godkänt ansökan.</p>
+
     <div id="msg" class="msg" style="display:none"></div>
 
     <form id="f" novalidate>
@@ -50,11 +62,26 @@
           <input id="orgNo" required placeholder="559999-1234">
           <div class="hint">Måste vara unikt (kontrolleras vid godkännande).</div>
         </div>
-        <div><label>Kontaktperson *</label><input id="contactName" required placeholder="För- och efternamn"></div>
-        <div><label>E-post *</label><input id="email" type="email" required placeholder="namn@foretag.se" autocomplete="email"></div>
-        <div style="grid-column:1/-1"><label>Meddelande</label><textarea id="message" placeholder="Kort beskrivning av behov/överskott, plats m.m."></textarea></div>
-        <div><label>Lösenord *</label><input id="password" type="password" required minlength="8" placeholder="Minst 8 tecken" autocomplete="new-password"></div>
-        <div><label>Bekräfta lösenord *</label><input id="password2" type="password" required minlength="8" placeholder="Skriv igen" autocomplete="new-password"></div>
+        <div>
+          <label>Kontaktperson *</label>
+          <input id="contactName" required placeholder="För- och efternamn">
+        </div>
+        <div>
+          <label>E-post *</label>
+          <input id="email" type="email" required placeholder="namn@foretag.se" autocomplete="email">
+        </div>
+        <div style="grid-column:1/-1">
+          <label>Meddelande</label>
+          <textarea id="message" placeholder="Kort beskrivning av behov/överskott, plats m.m."></textarea>
+        </div>
+        <div>
+          <label>Lösenord *</label>
+          <input id="password" type="password" required minlength="8" placeholder="Minst 8 tecken" autocomplete="new-password">
+        </div>
+        <div>
+          <label>Bekräfta lösenord *</label>
+          <input id="password2" type="password" required minlength="8" placeholder="Skriv igen" autocomplete="new-password">
+        </div>
       </div>
 
       <div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap">
@@ -65,7 +92,10 @@
     </form>
 
     <div id="done" style="display:none">
-      <div class="ok msg">Tack! Din ansökan är registrerad med status <b>pending</b>. Du får e-post när den har granskats.</div>
+      <div class="ok msg">
+        Tack! Din ansökan är registrerad med status <b>pending</b>.<br>
+        Du får e-post när den har granskats.
+      </div>
       <div style="margin-top:12px;display:flex;gap:10px">
         <a class="btn ghost" href="login.html">Gå till inloggning</a>
         <a class="btn ghost" href="index.html">Till startsidan</a>
@@ -81,19 +111,25 @@ const supabase = window.supabase.createClient(
 );
 
 const $ = id => document.getElementById(id);
+
 function show(type, txt){
   const m = $("msg");
   m.className = "msg " + (type === "error" ? "err" : "ok");
   m.textContent = txt;
   m.style.display = "block";
 }
-function clearMsg(){ const m=$("msg"); m.style.display="none"; m.textContent=""; m.className="msg"; }
+function clearMsg(){
+  const m = $("msg");
+  m.style.display = "none";
+  m.textContent = "";
+  m.className = "msg";
+}
 
 $("f").addEventListener("submit", async (e) => {
   e.preventDefault();
   clearMsg();
 
-  // -- Validering
+  // Validering
   const name = $("companyName").value.trim();
   const org  = $("orgNo").value.trim();
   const contact = $("contactName").value.trim();
@@ -105,29 +141,36 @@ $("f").addEventListener("submit", async (e) => {
   if(!name || !org || !contact || !email || !pass || !pass2){
     show("error","Fyll i alla obligatoriska fält."); return;
   }
-  if(pass.length < 8){ show("error","Lösenordet måste vara minst 8 tecken."); return; }
-  if(pass !== pass2){ show("error","Lösenorden matchar inte."); return; }
+  if(pass.length < 8){
+    show("error","Lösenordet måste vara minst 8 tecken."); return;
+  }
+  if(pass !== pass2){
+    show("error","Lösenorden matchar inte."); return;
+  }
 
   try{
     // 1) Tvinga utloggning av ev. tidigare session (t.ex. admin)
     await supabase.auth.signOut();
 
-    // 2) Skapa konto (signUp). Om e-posten redan finns – vi loggar in i steg 3.
+    // 2) Skapa konto eller logga in om e-posten redan finns
     const { error: signErr } = await supabase.auth.signUp({ email, password: pass });
     if (signErr && !/already registered/i.test(signErr.message)) {
-      show("error", signErr.message); return;
+      show("error", signErr.message);
+      return;
     }
 
-    // 3) Säkerställ att vi har en session (vissa projekt kräver e-postverifiering)
+    // 3) Säkerställ att vi har en session
     let { data:{ user } } = await supabase.auth.getUser();
     if(!user){
       const { data, error: inErr } = await supabase.auth.signInWithPassword({ email, password: pass });
       if(inErr){ show("error", inErr.message); return; }
       user = data.user;
     }
-    if(!user){ show("error","Kunde inte hämta användare efter inloggning."); return; }
+    if(!user){
+      show("error","Kunde inte hämta användare efter inloggning."); return;
+    }
 
-    // 4) Skapa ansökan (RLS: applicant_user_id MÅSTE vara auth.uid())
+    // 4) Skapa ansökan i tabellen
     const { error: insErr } = await supabase.from("applications").insert({
       applicant_user_id: user.id,
       company_name: name,
@@ -136,12 +179,22 @@ $("f").addEventListener("submit", async (e) => {
       email,
       message
     });
-    if (insErr){ show("error", insErr.message); return; }
 
-    // 5) Visa kvittens
+    if(insErr){
+      if(insErr.message.includes("duplicate")) {
+        show("error", "Ett företag med samma namn eller organisationsnummer finns redan.");
+      } else {
+        show("error", insErr.message);
+      }
+      return;
+    }
+
+    // 5) Visa kvittens och logga ut sökande
     $("f").style.display = "none";
     $("done").style.display = "block";
-  } catch (err){
+    await supabase.auth.signOut();
+
+  } catch(err){
     show("error", err.message || "Något gick fel. Försök igen.");
     console.error(err);
   }
@@ -149,4 +202,3 @@ $("f").addEventListener("submit", async (e) => {
 </script>
 </body>
 </html>
-
