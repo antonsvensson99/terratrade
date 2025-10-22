@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="sv">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Admin – Hantera ansökningar | TerraTrade</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root{
+      --bg:#0e1a11; --bg2:#122218; --leaf:#50c878; --leaf2:#3ebd94; --line:#24432f;
+      --text:#edf5ee; --muted:#b6c7b8; --card:#16271e;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;
+      color:var(--text);
+      background:
+        radial-gradient(1000px 700px at 80% -10%, rgba(47,191,113,.15), transparent 60%),
+        linear-gradient(180deg,var(--bg),var(--bg2));
+      min-height:100svh;
+    }
+    header{display:flex;justify-content:space-between;align-items:center;padding:14px 20px;border-bottom:1px solid rgba(255,255,255,.08)}
+    a{color:var(--text)}
+    .container{max-width:1000px;margin:0 auto;padding:18px}
+    .panel{border:1px solid var(--line);background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.01)) var(--card);border-radius:16px;padding:16px}
+    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+    input,textarea{background:rgba(255,255,255,.03);border:1px solid var(--line);color:var(--text);padding:10px 12px;border-radius:10px}
+    button{background:var(--leaf);border:none;color:#082013;padding:10px 14px;border-radius:10px;font-weight:800;cursor:pointer}
+    button:hover{background:var(--leaf2)}
+    .ghost{background:transparent;border:1px solid var(--line);color:var(--text)}
+    .list{display:grid;gap:12px;margin-top:12px}
+    .cardItem{border:1px solid var(--line);border-radius:12px;padding:12px;background:rgba(255,255,255,.03)}
+    .muted{color:var(--muted)}
+    .err{background:rgba(255,106,106,.12);border:1px solid rgba(255,106,106,.5);color:#ffdede;padding:10px;border-radius:8px}
+    .ok{background:rgba(80,200,120,.12);border:1px solid rgba(80,200,120,.5);color:#dff7e8;padding:10px;border-radius:8px}
+  </style>
+</head>
+<body>
+<header>
+  <div class="row">
+    <a href="index.html">← Start</a>
+    <strong>Adminpanel</strong>
+  </div>
+  <div class="row">
+    <span id="who" class="muted"></span>
+    <button class="ghost" id="logoutBtn">Logga ut</button>
+  </div>
+</header>
+
+<main class="container">
+  <section class="panel">
+    <h1>Hantera ansökningar</h1>
+    <p class="muted">Endast admin. Godkänn/avvisa inkomna företagsansökningar.</p>
+
+    <!-- Login box (visas om ingen session) -->
+    <div id="loginBox" class="row" style="margin-top:12px">
+      <input id="email" type="email" placeholder="admin@mail.se" />
+      <input id="password" type="password" placeholder="Lösenord" />
+      <button id="loginBtn">Logga in</button>
+    </div>
+
+    <div id="alert" style="margin-top:10px"></div>
+
+    <!-- Pending list -->
+    <div id="pendingWrap" style="margin-top:12px;display:none">
+      <div class="row" style="justify-content:space-between">
+        <h3>Inkomna ansökningar (pending)</h3>
+        <button class="ghost" id="refreshBtn">Uppdatera</button>
+      </div>
+      <div id="pendingList" class="list"></div>
+    </div>
+  </section>
+</main>
+
+<script>
+  const supabase = window.supabase.createClient(
+    "https://YOUR-PROJECT-URL.supabase.co",
+    "YOUR-ANON-KEY"
+  );
+
+  const whoEl = document.getElementById("who");
+  const alertEl = document.getElementById("alert");
+  const loginBox = document.getElementById("loginBox");
+  const pendingWrap = document.getElementById("pendingWrap");
+  const pendingList = document.getElementById("pendingList");
+
+  function setAlert(type, msg){
+    alertEl.className = type === "error" ? "err" : "ok";
+    alertEl.textContent = msg;
+  }
+  function clearAlert(){ alertEl.className=""; alertEl.textContent=""; }
+
+  async function ensureAdmin(){
+    const { data:{ user } } = await supabase.auth.getUser();
+    if(!user){ loginBox.style.display="flex"; whoEl.textContent="Inte inloggad"; return null; }
+    const { data:profile, error } = await supabase.from("profiles").select("role, full_name").eq("user_id", user.id).single();
+    if(error){ setAlert("error","Kunde inte hämta profil: "+error.message); return null; }
+    whoEl.textContent = `${profile.full_name || user.email} (${profile.role})`;
+    if(profile.role !== "admin"){
+      setAlert("error","Du är inte admin. Be en admin sätta din roll i profiles.");
+      loginBox.style.display="none";
+      return null;
+    }
+    loginBox.style.display="none";
+    return user;
+  }
+
+  async function listPending(){
+    clearAlert();
+    const { data, error } = await supabase.from("applications")
+      .select("id, company_name, org_no, contact_name, email, message, created_at")
+      .eq("status","pending")
+      .order("created_at", { ascending:true });
+    if(error){ setAlert("error","Fel vid hämtning: "+error.message); return; }
+
+    pendingList.innerHTML = "";
+    if(!data || data.length === 0){
+      pendingList.innerHTML = '<div class="muted">Inga pending-ansökningar just nu.</div>';
+    } else {
+      for(const a of data){
+        const el = document.createElement("div");
+        el.className = "cardItem";
+        el.innerHTML = `
+          <div class="row" style="justify-content:space-between">
+            <strong>${a.company_name}</strong>
+            <small class="muted">${new Date(a.created_at).toLocaleString()}</small>
+          </div>
+          <div class="muted">Org.nr: ${a.org_no}</div>
+          <div>Kontakt: <strong>${a.contact_name}</strong> – <a href="mailto:${a.email}">${a.email}</a></div>
+          ${a.message ? `<p style="margin-top:6px">${a.message}</p>` : ""}
+          <div class="row" style="margin-top:10px">
+            <button data-approve="${a.id}">Godkänn</button>
+            <button class="ghost" data-reject="${a.id}">Avvisa</button>
+          </div>
+        `;
+        pendingList.appendChild(el);
+      }
+    }
+    pendingWrap.style.display = "block";
+  }
+
+  async function approve(appId){
+    clearAlert();
+    const { error } = await supabase.rpc("review_application", {
+      p_application_id: appId,
+      p_approve: true,
+      p_rejection_reason: null
+    });
+    if(error){ setAlert("error", error.message); return; }
+    setAlert("ok", "Ansökan godkänd ✅");
+    await listPending();
+  }
+
+  async function reject(appId){
+    const reason = prompt("Ange valfri kommentar till avslag (kan lämnas tom):") || null;
+    clearAlert();
+    const { error } = await supabase.rpc("review_application", {
+      p_application_id: appId,
+      p_approve: false,
+      p_rejection_reason: reason
+    });
+    if(error){ setAlert("error", error.message); return; }
+    setAlert("ok", "Ansökan avvisad.");
+    await listPending();
+  }
+
+  // Wire up UI
+  document.getElementById("loginBtn").onclick = async () => {
+    clearAlert();
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value;
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    if(error){ setAlert("error", error.message); return; }
+    setAlert("ok","Inloggad.");
+    const ok = await ensureAdmin();
+    if(ok) listPending();
+  };
+
+  document.getElementById("logoutBtn").onclick = async () => {
+    await supabase.auth.signOut();
+    location.reload();
+  };
+  document.getElementById("refreshBtn").onclick = listPending;
+
+  // Delegated click for approve/reject
+  pendingList.addEventListener("click", (e)=>{
+    const t = e.target;
+    if(t.dataset.approve){ approve(t.dataset.approve); }
+    if(t.dataset.reject){ reject(t.dataset.reject); }
+  });
+
+  // Init
+  (async ()=>{
+    const user = await ensureAdmin();
+    if(user) listPending();
+    // Lyssna på auth-status
+    supabase.auth.onAuthStateChange(async (_evt, session)=>{
+      if(session){ await ensureAdmin(); await listPending(); }
+    });
+  })();
+</script>
+</body>
+</html>
