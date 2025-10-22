@@ -6,241 +6,101 @@
   <title>TerraTrade – Köp eller sälj schaktmassor</title>
   <meta name="description" content="Nytänk och miljöfokus för återbruk av schaktmassor. Ansök, annonsera, matcha lokalt.">
   <style>
-    :root{
-      /* Eco palette */
-      --bg:#0e1a11;
-      --bg-2:#122218;
-      --leaf-1:#8bd17c;
-      --leaf-2:#2fbf71;
-      --leaf-3:#77e3c3;
-      --sand:#e1d8c7;
-      --ink:#0c140e;
-      --text:#edf5ee;
-      --muted:#b6c7b8;
-      --card: #16271e;
-      --line:#24432f;
-      --cta:#50c878;         /* malachite green */
-      --cta-2:#3ebd94;
-      --cta-ink:#082013;
-      --shadow: 0 30px 80px rgba(0,0,0,.45);
-    }
-
+    :root{--bg:#0e1a11;--bg2:#122218;--leaf1:#8bd17c;--leaf2:#2fbf71;--leaf3:#77e3c3;--text:#edf5ee;--muted:#b6c7b8;--card:#16271e;--line:#24432f;--cta:#50c878;--cta2:#3ebd94;--ink:#082013}
     *{box-sizing:border-box;margin:0;padding:0}
-    html,body{height:100%}
-    body{
-      font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial;
-      color:var(--text);
-      background:
-        radial-gradient(1200px 800px at 80% -10%, rgba(47,191,113,.15), transparent 60%),
-        radial-gradient(900px 700px at 0% 100%, rgba(119,227,195,.10), transparent 60%),
-        linear-gradient(180deg, var(--bg), var(--bg-2));
-      letter-spacing:.2px;
-    }
-
-    /* Header */
-    header{
-      position:sticky;top:0;z-index:40;
-      backdrop-filter:saturate(1.2) blur(10px);
-      background:linear-gradient(180deg, rgba(16,30,22,.8), rgba(16,30,22,.45));
-      border-bottom:1px solid rgba(255,255,255,.06);
-    }
+    body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial;color:var(--text);background:
+      radial-gradient(1200px 800px at 80% -10%, rgba(47,191,113,.15), transparent 60%),
+      radial-gradient(900px 700px at 0% 100%, rgba(119,227,195,.10), transparent 60%),
+      linear-gradient(180deg,var(--bg),var(--bg2));letter-spacing:.2px}
+    header{position:sticky;top:0;z-index:40;backdrop-filter:saturate(1.2) blur(10px);background:linear-gradient(180deg, rgba(16,30,22,.8), rgba(16,30,22,.45));border-bottom:1px solid rgba(255,255,255,.06)}
     .container{max-width:1100px;margin:0 auto;padding:18px 24px}
     .nav{display:flex;align-items:center;justify-content:space-between;gap:14px}
     .brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--text)}
-    .logo{
-      width:36px;height:36px;border-radius:10px;
-      background:conic-gradient(from 180deg, var(--leaf-1), var(--leaf-2), var(--leaf-3));
-      display:grid;place-items:center;color:var(--cta-ink);font-weight:800;
-      box-shadow:0 6px 18px rgba(80,200,120,.25);
-    }
-    .brand span{font-weight:800;font-size:18px}
-    .login{
-      text-decoration:none;font-weight:700;border:1px solid var(--line);
-      padding:8px 14px;border-radius:10px;color:var(--text)
-    }
-    .login:hover{background:rgba(80,200,120,.12);border-color:rgba(80,200,120,.35)}
-
-    /* Hero */
+    .logo{width:36px;height:36px;border-radius:10px;background:conic-gradient(from 180deg,var(--leaf1),var(--leaf2),var(--leaf3));display:grid;place-items:center;color:var(--ink);font-weight:800}
+    .login{border:1px solid var(--line);padding:8px 14px;border-radius:10px;color:var(--text);text-decoration:none;font-weight:700}
+    .login:hover{border-color:rgba(80,200,120,.4)}
     .hero{position:relative;overflow:hidden}
     .hero-inner{display:grid;grid-template-columns:1.2fr .8fr;gap:28px;align-items:center;padding:54px 24px 24px}
     .h1{font-size:40px;line-height:1.1;margin:6px 0 10px}
-    .grad{background:linear-gradient(135deg,var(--leaf-1),var(--leaf-2));-webkit-background-clip:text;background-clip:text;color:transparent}
+    .grad{background:linear-gradient(135deg,var(--leaf1),var(--leaf2));-webkit-background-clip:text;background-clip:text;color:transparent}
     .lead{color:var(--muted);font-size:18px;max-width:640px}
     .cta{display:flex;gap:12px;flex-wrap:wrap;margin-top:18px}
     .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 18px;border-radius:14px;font-weight:800;text-decoration:none;transition:transform .06s ease, background .2s ease,border .2s ease}
-    .btn:focus{outline:2px solid var(--leaf-2);outline-offset:2px}
-    .btn-primary{background:var(--cta);color:var(--cta-ink);border:1px solid transparent}
-    .btn-primary:hover{background:var(--cta-2);transform:translateY(-1px)}
+    .btn-primary{background:var(--cta);color:var(--ink);border:1px solid transparent}
+    .btn-primary:hover{background:var(--cta2);transform:translateY(-1px)}
     .btn-ghost{background:transparent;border:1px solid var(--line);color:var(--text)}
     .btn-ghost:hover{border-color:rgba(80,200,120,.4);transform:translateY(-1px)}
-    .eco-badges{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
-    .badge{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border:1px solid var(--line);border-radius:999px;background:rgba(255,255,255,.04);color:var(--muted);font-weight:700;font-size:12px}
-
-    /* Organic shapes */
-    .blob, .ring {
-      position:absolute;border-radius:50%;filter:blur(40px);opacity:.28;pointer-events:none
-    }
-    .blob{width:520px;height:520px;right:-120px;top:-160px;background:radial-gradient(circle at 30% 30%, var(--leaf-3), transparent 60%)}
-    .ring{width:420px;height:420px;left:-140px;bottom:-100px;background:radial-gradient(circle at 70% 70%, var(--leaf-2), transparent 60%)}
-    .wave{position:absolute;inset:auto 0 -1px 0;height:120px;background:
-      radial-gradient(60% 100% at 50% -20%, rgba(255,255,255,.08) 25%, transparent 60%);
-    }
-
-    /* Preview card */
-    .panel{border:1px solid var(--line);background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.01)) var(--card);border-radius:18px;padding:16px;box-shadow:var(--shadow)}
+    .badge{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border:1px solid var(--line);border-radius:999px;background:rgba(255,255,255,.04);color:var(--muted);font-weight:700;font-size:12px;margin-right:8px}
+    .panel{border:1px solid var(--line);background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.01)) var(--card);border-radius:18px;padding:16px;box-shadow:0 30px 80px rgba(0,0,0,.45)}
     .mock{margin-top:10px;border:1px dashed var(--line);border-radius:12px;padding:14px}
-    .mock h4{margin:0 0 6px}
-    .muted{color:var(--muted)}
-
-    /* Why */
     .section{padding:40px 24px}
     .section h2{font-size:26px;margin-bottom:10px}
-    .section p.lead{margin-top:6px}
     .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:18px}
     .card{border:1px solid var(--line);background:rgba(255,255,255,.03);border-radius:16px;padding:16px}
-    .card h3{margin:0 0 6px}
-    .stat{font-weight:800;font-size:28px;letter-spacing:.5px}
-    .stat small{font-weight:700;color:var(--muted);font-size:12px}
-
-    /* Steps */
     .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:18px}
     .step{border:1px solid var(--line);border-radius:16px;background:rgba(255,255,255,.03);padding:18px}
-    .num{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:9px;background:linear-gradient(135deg,var(--leaf-1),var(--leaf-2));color:#062014;font-weight:900;margin-bottom:8px}
-    .step h3{margin:4px 0 6px}
-    .apply{display:inline-block;margin-top:10px;background:var(--cta);color:var(--cta-ink);text-decoration:none;padding:10px 16px;border-radius:10px;font-weight:800}
-    .apply:hover{background:var(--cta-2)}
-
-    /* Footer */
+    .num{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:9px;background:linear-gradient(135deg,var(--leaf1),var(--leaf2));color:#062014;font-weight:900;margin-bottom:8px}
     footer{border-top:1px solid rgba(255,255,255,.06);margin-top:34px}
     .foot{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:22px 24px;color:var(--muted);font-size:14px}
-
-    /* Motion */
-    @keyframes floaty{from{transform:translateY(0)}50%{transform:translateY(-4px)}to{transform:translateY(0)}}
-    .logo{animation:floaty 7s ease-in-out infinite}
-    @media (prefers-reduced-motion:reduce){
-      .logo{animation:none}
-    }
-
-    /* Responsive */
     @media (max-width:900px){ .hero-inner{grid-template-columns:1fr} .cards,.steps{grid-template-columns:1fr} }
   </style>
 </head>
 <body>
   <header>
     <div class="container nav">
-      <a class="brand" href="#top">
-        <div class="logo" aria-hidden="true">
-          <!-- inline eco icon -->
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <path d="M12 2c3.5 0 6 2.5 6 6 0 4.5-3.5 8-8 8H6c0-5.5 4.5-10 10-10" stroke="#092014" stroke-width="2" stroke-linecap="round"/>
-          </svg>
-        </div>
-        <span>TerraTrade</span>
-      </a>
+      <a class="brand" href="index.html"><div class="logo">T</div><span>TerraTrade</span></a>
       <a class="login" href="login.html">Logga in</a>
     </div>
   </header>
 
   <main id="top" class="hero">
-    <div class="blob"></div><div class="ring"></div>
     <div class="container hero-inner">
       <div>
-        <div class="eco-badges">
-          <span class="badge">Cirkulär ekonomi</span>
-          <span class="badge">Mindre transporter</span>
-          <span class="badge">Återbruk i fokus</span>
-        </div>
+        <span class="badge">Cirkulär ekonomi</span>
+        <span class="badge">Mindre transporter</span>
         <h1 class="h1">Köp eller sälj <span class="grad">schaktmassor</span></h1>
-        <p class="lead">Smidigare, smartare och mer hållbar hantering av massor mellan byggprojekt. Nytänk som minskar spill och koldioxid.</p>
+        <p class="lead">Smidigare, smartare och mer hållbar hantering mellan byggprojekt. Ansök, bli godkänd, bjud in teamet.</p>
         <div class="cta">
           <a class="btn btn-primary" href="apply.html">Ansök om företagskonto</a>
-          <a class="btn btn-ghost" href="#hur">Hur det funkar</a>
+          <a class="btn btn-ghost" href="login.html">Logga in</a>
         </div>
       </div>
-
-      <aside class="panel" aria-label="Förhandsvisning">
-        <span class="badge" style="margin-bottom:8px">Miljöeffekt – demo</span>
+      <aside class="panel">
+        <span class="badge">Miljöeffekt – demo</span>
         <div class="mock">
-          <h4>Lokalt utbyte matchat</h4>
-          <p class="muted">Projekt A ➝ Projekt B inom 12 km · Mindre diesel · Snabbare avlastning</p>
-          <div class="cards" style="grid-template-columns:repeat(3,1fr);margin-top:12px">
-            <div class="card">
-              <div class="stat">−38%<br><small>CO₂ / ton*</small></div>
-            </div>
-            <div class="card">
-              <div class="stat">+2x<br><small>Återbrukstakt*</small></div>
-            </div>
-            <div class="card">
-              <div class="stat">−28%<br><small>Transport-km*</small></div>
-            </div>
-          </div>
-          <p class="muted" style="margin-top:8px;font-size:12px">*Illustrativa siffror – verkliga värden beror på projektets data.</p>
+          <strong>Lokalt utbyte matchat</strong>
+          <p style="color:#b6c7b8;margin-top:6px">Mindre diesel · Snabbare avlastning · Lägre CO₂</p>
         </div>
       </aside>
     </div>
-    <div class="wave"></div>
   </main>
 
   <section class="section container" id="varfor">
     <h2>Därför finns vi</h2>
-    <p class="lead">
-      Bygg- och anläggningsbranschen skapar stora mängder schaktmassor. Ofta körs de långt – trots att andra projekt i närheten behöver materialet.
-      Vi förenklar återbruket, minskar spill och kopplar ihop aktörer lokalt.
-    </p>
+    <p style="color:#b6c7b8">Branschen skapar stora mängder schaktmassor som ofta körs långt. Vi förenklar återbruket och kopplar ihop aktörer lokalt.</p>
     <div class="cards">
-      <div class="card">
-        <h3>Transparent</h3>
-        <p class="muted">Tydlig status på ansökan, företag och flöden – alla vet nästa steg.</p>
-      </div>
-      <div class="card">
-        <h3>Lokalt först</h3>
-        <p class="muted">Matchning nära dig minskar transportavstånd och kostnad.</p>
-      </div>
-      <div class="card">
-        <h3>Klimatsmart</h3>
-        <p class="muted">Återbruk av massor sparar naturresurser och CO₂.</p>
-      </div>
+      <div class="card"><h3>Transparent</h3><p style="color:#b6c7b8">Tydlig status på ansökan, företag och flöden.</p></div>
+      <div class="card"><h3>Lokalt först</h3><p style="color:#b6c7b8">Matchning nära dig minskar transportavstånd och kostnad.</p></div>
+      <div class="card"><h3>Klimatsmart</h3><p style="color:#b6c7b8">Återbruk sparar naturresurser och CO₂.</p></div>
     </div>
   </section>
 
   <section class="section container" id="hur">
     <h2>Läs nedan om hur det funkar</h2>
     <div class="steps">
-      <div class="step">
-        <div class="num">1</div>
-        <h3>Ansök om konto</h3>
-        <p class="muted">Alla företag skapar ett konto via vår ansökningsprocess. När kontot är godkänt kan ni börja använda plattformen.</p>
-        <a class="apply" href="apply.html">Ansök nu</a>
-      </div>
-      <div class="step">
-        <div class="num">2</div>
-        <h3>Lägg upp material eller hitta det du behöver</h3>
-        <p class="muted">Annonsera överskott eller sök material nära dig via vår karta.</p>
-      </div>
-      <div class="step">
-        <div class="num">3</div>
-        <h3>Nu har du hjälpt till att skapa en hållbarare byggbransch</h3>
-        <p class="muted">Återanvändning minskar avfall, sparar resurser och främjar en cirkulär framtid.</p>
-      </div>
+      <div class="step"><div class="num">1</div><h3>Ansök om konto</h3><p style="color:#b6c7b8">När admin godkänner blir du företagsadmin.</p></div>
+      <div class="step"><div class="num">2</div><h3>Lägg upp/hitta material</h3><p style="color:#b6c7b8">Annonsera överskott eller sök material nära dig.</p></div>
+      <div class="step"><div class="num">3</div><h3>Bidra till hållbarhet</h3><p style="color:#b6c7b8">Mindre spill, lägre utsläpp, snabbare flöden.</p></div>
     </div>
   </section>
 
   <footer>
     <div class="foot container">
       <span>© <span id="y"></span> TerraTrade</span>
-      <span class="muted">Nytänk för cirkulär masshantering</span>
+      <span style="color:#b6c7b8">Nytänk för cirkulär masshantering</span>
     </div>
   </footer>
-
-  <script>
-    document.getElementById("y").textContent = new Date().getFullYear();
-    // Mjuk fallback om apply/login saknas ännu
-    function softGuard(sel, msg){
-      const a=document.querySelector(sel); if(!a) return;
-      fetch(a.getAttribute("href"),{method:"HEAD"}).then(r=>{if(!r.ok)throw 0}).catch(()=>a.addEventListener("click",e=>{e.preventDefault();alert(msg)}))
-    }
-    softGuard('a[href="apply.html"]',"Ansökningssidan (apply.html) läggs till i nästa steg ✨");
-    softGuard('a[href="login.html"]',"Loginsidan (login.html) läggs till i nästa steg 🔐");
-  </script>
+  <script>document.getElementById("y").textContent=new Date().getFullYear();</script>
 </body>
 </html>
+
