@@ -1,102 +1,272 @@
 <!doctype html>
 <html lang="sv">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>TerraTrade</title>
-    <meta name="description" content="B2B-plattform för företagsansökningar och teamhantering" />
-    <style>
-      :root {
-        --bg: #0b1020;
-        --card: #11172e;
-        --text: #e6e8ef;
-        --muted: #9aa3b2;
-        --brand: #6aa3ff;
-        --brand-hover: #5a90e5;
-        --outline: #233156;
-      }
-      * { box-sizing: border-box; }
-      body {
-        margin: 0;
-        font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial;
-        min-height: 100svh;
-        display: grid;
-        place-items: center;
-        background: radial-gradient(1200px 800px at 70% -10%, #1a2550 0%, transparent 60%) var(--bg);
-        color: var(--text);
-        padding: 24px;
-      }
-      .card {
-        width: 100%;
-        max-width: 720px;
-        background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01)) var(--card);
-        border: 1px solid var(--outline);
-        border-radius: 20px;
-        padding: 28px;
-        box-shadow: 0 20px 50px rgba(0,0,0,0.35);
-      }
-      .header { display: flex; align-items: center; gap: 12px; }
-      .logo {
-        width: 36px; height: 36px; border-radius: 8px;
-        background: linear-gradient(135deg, #6aa3ff, #78f0ff);
-        display: grid; place-items: center; color: #081028; font-weight: 800;
-      }
-      .title { font-size: 24px; margin: 0; }
-      .subtitle { margin: 4px 0 0; color: var(--muted) }
-      .hero {
-        margin-top: 18px; padding: 18px; border: 1px dashed var(--outline);
-        border-radius: 14px; color: var(--muted); background: rgba(14, 22, 44, 0.35);
-      }
-      .actions { margin-top: 22px; display: flex; flex-wrap: wrap; gap: 12px; }
-      .btn {
-        display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-        padding: 12px 18px; border-radius: 12px; text-decoration: none; font-weight: 600;
-        border: 1px solid var(--outline); transition: transform .04s ease; cursor: pointer;
-      }
-      .btn:hover { transform: translateY(-1px); }
-      .btn-primary { background: var(--brand); color: #081028; border-color: transparent; }
-      .btn-primary:hover { background: var(--brand-hover); }
-      .btn-secondary { color: var(--text); background: transparent; }
-      .helper { margin-top: 10px; color: var(--muted); font-size: 14px; }
-    </style>
-  </head>
-  <body>
-    <main>
-      <section class="card">
-        <header class="header">
-          <div class="logo">T</div>
-          <div>
-            <h1 class="title">TerraTrade</h1>
-            <p class="subtitle">B2B-plattform för företagsansökningar och teamhantering</p>
-          </div>
-        </header>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>TerraTrade – sälja/byta schaktmassor</title>
+  <meta name="description" content="TerraTrade – ansök om företagskonto och hantera team. Sälja/byta schaktmassor mellan projekt." />
 
-        <div class="hero">
-          <p>
-            Välkommen! Här kan företag <strong>ansöka</strong> om konto och efter godkännande
-            loggar teamet in för att använda tjänsten. Admin hanterar ansökningar centralt.
+  <style>
+    :root{
+      --bg:#0b1020;
+      --panel:#0f1530;
+      --card:#11172e;
+      --text:#e7ebf5;
+      --muted:#9aa3b2;
+      --brand:#6aa3ff;
+      --brand-2:#78f0ff;
+      --brand-hover:#5a90e5;
+      --outline:#223058;
+      --ok:#41d3a2;
+      --warn:#ffd06a;
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      color:var(--text);
+      background:
+        radial-gradient(1200px 800px at 70% -10%, #1a2550 0%, transparent 60%),
+        radial-gradient(800px 600px at 0% 100%, rgba(105,170,255,.15), transparent 60%),
+        var(--bg);
+      letter-spacing:.2px;
+    }
+
+    /* Layout */
+    .container{max-width:1100px;margin:0 auto;padding:24px}
+    header.nav{
+      position:sticky;top:0;z-index:50;
+      backdrop-filter: blur(8px);
+      background:linear-gradient(180deg, rgba(10,16,32,.75), rgba(10,16,32,.35));
+      border-bottom:1px solid rgba(255,255,255,.06);
+    }
+    .nav-inner{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px 0}
+    .brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--text)}
+    .logo{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--brand),var(--brand-2));display:grid;place-items:center;color:#081028;font-weight:800}
+    .brand span{font-weight:700;font-size:18px}
+
+    .nav-links{display:flex;gap:14px;flex-wrap:wrap}
+    .link{color:var(--muted);text-decoration:none;font-weight:600;padding:8px 10px;border-radius:8px;border:1px solid transparent}
+    .link:hover{color:var(--text);border-color:var(--outline)}
+
+    /* Hero */
+    .hero{padding:56px 0 24px}
+    .hero-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:28px}
+    .h1{font-size:40px;line-height:1.1;margin:8px 0 10px}
+    .h1 .grad{background:linear-gradient(135deg,var(--brand),var(--brand-2));-webkit-background-clip:text;background-clip:text;color:transparent}
+    .lead{color:var(--muted);font-size:18px;max-width:640px}
+    .cta{display:flex;gap:12px;flex-wrap:wrap;margin-top:18px}
+    .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 18px;border-radius:12px;font-weight:700;text-decoration:none;border:1px solid var(--outline);transition:transform .05s ease, background .2s ease}
+    .btn:hover{transform:translateY(-1px)}
+    .btn-primary{background:var(--brand);color:#081028;border-color:transparent}
+    .btn-primary:hover{background:var(--brand-hover)}
+    .btn-ghost{background:transparent;color:var(--text)}
+    .mini{font-size:12px;color:var(--muted);margin-top:6px}
+
+    /* Preview card (höger) */
+    .panel{
+      border:1px solid var(--outline);
+      background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.01)) var(--panel);
+      border-radius:16px;padding:16px;
+      box-shadow:0 30px 60px rgba(0,0,0,.35);
+    }
+    .tag{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border:1px solid var(--outline);border-radius:999px;color:var(--muted);font-weight:700;font-size:12px}
+    .mock{
+      margin-top:12px;border:1px solid var(--outline);border-radius:12px;overflow:hidden;background:var(--card)
+    }
+    .mock .bar{display:flex;gap:8px;padding:10px;border-bottom:1px solid var(--outline)}
+    .dot{width:10px;height:10px;border-radius:999px;background:#f66a6a}
+    .dot:nth-child(2){background:#ffd06a}
+    .dot:nth-child(3){background:#63d48f}
+    .mock .content{padding:16px}
+    .badge{display:inline-flex;gap:6px;align-items:center;padding:6px 10px;border:1px solid var(--outline);border-radius:10px;background:rgba(255,255,255,.03);font-size:12px;color:var(--muted)}
+    .ok{color:var(--ok)}
+    .warn{color:var(--warn)}
+
+    /* Steps */
+    .section{padding:36px 0}
+    .section h2{margin:0 0 12px;font-size:22px}
+    .muted{color:var(--muted)}
+    .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:10px}
+    .step{background:linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.01)) var(--card);border:1px solid var(--outline);border-radius:16px;padding:16px}
+    .step b{display:block;margin-bottom:6px}
+    .step small{color:var(--muted)}
+    .step .num{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,var(--brand),var(--brand-2));color:#081028;font-weight:800;margin-bottom:8px}
+
+    /* Roles */
+    .roles{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+    .role{border:1px solid var(--outline);border-radius:16px;padding:16px;background:rgba(255,255,255,.02)}
+    .role h3{margin:0 0 8px}
+    .role ul{margin:0;padding-left:18px}
+    .role li{margin:6px 0;color:var(--muted)}
+
+    /* Footer */
+    footer{border-top:1px solid rgba(255,255,255,.06);margin-top:40px}
+    .foot{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:22px 0;color:var(--muted);font-size:14px}
+
+    /* Responsive */
+    @media (max-width:900px){
+      .hero-grid{grid-template-columns:1fr}
+    }
+    @media (max-width:700px){
+      .steps,.roles{grid-template-columns:1fr}
+      .h1{font-size:32px}
+    }
+
+    /* Tiny motion */
+    @keyframes floaty{from{transform:translateY(0)}50%{transform:translateY(-4px)}to{transform:translateY(0)}}
+    .logo{animation:floaty 6s ease-in-out infinite}
+  </style>
+</head>
+<body>
+  <!-- NAV -->
+  <header class="nav">
+    <div class="container nav-inner">
+      <a class="brand" href="#top">
+        <div class="logo">T</div>
+        <span>TerraTrade</span>
+      </a>
+      <nav class="nav-links">
+        <a class="link" href="#hur">Hur det funkar</a>
+        <a class="link" href="#roller">Roller</a>
+        <a class="link" href="#cta">Kom igång</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="top">
+    <div class="container hero">
+      <div class="hero-grid">
+        <!-- Vänster: text -->
+        <div>
+          <div class="tag">sälja / byta schaktmassor</div>
+          <h1 class="h1">
+            Enklare <span class="grad">matchning</span> mellan projekt – ansök, bjud in teamet och kör.
+          </h1>
+          <p class="lead">
+            TerraTrade hjälper entreprenörer att hantera företagsansökningar, användare och
+            flödet för godkännande. Byggt för tydlighet: ansök → granska → bjud in → använd.
           </p>
+          <div class="cta" id="cta">
+            <a class="btn btn-primary" href="apply.html">Ansök om företagskonto</a>
+            <a class="btn btn-ghost" href="login.html">Logga in</a>
+          </div>
+          <div class="mini">Saknar du sidorna? De kan läggas till som <code>apply.html</code> och <code>login.html</code>.</div>
         </div>
 
-        <div class="actions">
-          <a href="#" class="btn btn-primary" id="applyBtn">Ansök</a>
-          <a href="#" class="btn btn-secondary" id="loginBtn">Logga in</a>
+        <!-- Höger: “preview” panel -->
+        <aside class="panel">
+          <span class="badge">Förhandsvisning</span>
+          <div class="mock" aria-hidden="true">
+            <div class="bar"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+            <div class="content">
+              <div class="badge ok">Status: Väntar på godkännande</div>
+              <h3 style="margin:12px 0 6px;">Acme Entreprenad AB</h3>
+              <p class="muted" style="margin:0 0 14px;">Org.nr 559999-1234 • kontakt@acme.se</p>
+
+              <div class="roles" style="grid-template-columns:1fr 1fr; gap:12px;">
+                <div class="role">
+                  <h4 style="margin:0 0 8px;">Admin</h4>
+                  <ul>
+                    <li>Godkänn ansökningar</li>
+                    <li>Avvisa & lämna kommentar</li>
+                  </ul>
+                </div>
+                <div class="role">
+                  <h4 style="margin:0 0 8px;">Företagsadmin</h4>
+                  <ul>
+                    <li>Bjud in användare</li>
+                    <li>Hantera team</li>
+                  </ul>
+                </div>
+              </div>
+
+              <p class="muted" style="margin-top:12px;">
+                <span class="badge warn">Edge case: Dubblettnamn stoppas</span>
+              </p>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </div>
+
+    <!-- Hur det funkar -->
+    <section class="section container" id="hur">
+      <h2>Hur det funkar</h2>
+      <p class="muted">Tydliga steg från ansökan till aktiv användning.</p>
+      <div class="steps">
+        <div class="step">
+          <div class="num">1</div>
+          <b>Ansökan</b>
+          <small>Företaget skickar in info + kontakt. Konto skapas och ansökan sätts till <i>pending</i>.</small>
         </div>
+        <div class="step">
+          <div class="num">2</div>
+          <b>Granskning</b>
+          <small>Admin godkänner (unika företagsnamn krävs) eller avvisar med kommentar.</small>
+        </div>
+        <div class="step">
+          <div class="num">3</div>
+          <b>Team & inbjudningar</b>
+          <small>Företagsadmin bjuder in via e-post. Användare sätter lösenord och blir <i>member</i>.</small>
+        </div>
+      </div>
+    </section>
 
-        <p class="helper">Du kan alltid komma tillbaka hit via “Startsida”.</p>
-      </section>
-    </main>
+    <!-- Roller -->
+    <section class="section container" id="roller">
+      <h2>Roller</h2>
+      <div class="roles">
+        <div class="role">
+          <h3>Admin</h3>
+          <ul>
+            <li>Översikt & hantera ansökningar</li>
+            <li>Godkänn / Avvisa</li>
+          </ul>
+        </div>
+        <div class="role">
+          <h3>Företagsadmin</h3>
+          <ul>
+            <li>Bjud in & hantera användare</li>
+            <li>Ser endast sitt företag</li>
+          </ul>
+        </div>
+        <div class="role">
+          <h3>Användare (Member)</h3>
+          <ul>
+            <li>Landningssida & Logout</li>
+            <li>Ser endast sitt företag</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+  </main>
 
-    <script>
-      // Placeholder-knappar tills vi bygger riktiga sidor
-      document.getElementById("applyBtn").addEventListener("click", function (e) {
-        e.preventDefault();
-        alert("Ansökningssidan kommer i nästa steg ✨");
-      });
-      document.getElementById("loginBtn").addEventListener("click", function (e) {
-        e.preventDefault();
-        alert("Login-sidan kommer i nästa steg 🔐");
-      });
-    </script>
-  </body>
+  <footer>
+    <div class="container foot">
+      <span>© <span id="y"></span> TerraTrade</span>
+      <span class="muted">Byggd för enkel, tydlig flödeshantering</span>
+    </div>
+  </footer>
+
+  <script>
+    // år i footer
+    document.getElementById("y").textContent = new Date().getFullYear();
+
+    // Om apply.html/login.html inte finns ännu, visa snällt meddelande
+    function softGuard(selector, text){
+      const a = document.querySelector(selector);
+      if(!a) return;
+      fetch(a.getAttribute("href"), {method:"HEAD"})
+        .then(r => { if(!r.ok) throw 0; })
+        .catch(() => {
+          a.addEventListener("click", (e)=>{ e.preventDefault(); alert(text); });
+        });
+    }
+    softGuard('a[href="apply.html"]', "Ansökningssidan (apply.html) läggs till i nästa steg ✨");
+    softGuard('a[href="login.html"]', "Loginsidan (login.html) läggs till i nästa steg 🔐");
+  </script>
+</body>
 </html>
