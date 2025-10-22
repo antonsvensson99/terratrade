@@ -171,13 +171,31 @@ $("f").addEventListener("submit", async (e) => {
     }
 
     // 4) Skapa ansökan i tabellen
+    // 4a) Uppdatera/skapaprofil så att admin kan se vem som ansökt
+    const profilePayload = {
+      user_id: user.id,
+      full_name: contact,
+      role: "pending"
+    };
+
+    const { error: profileErr } = await supabase
+      .from("profiles")
+      .upsert(profilePayload, { onConflict: "user_id" });
+
+    if (profileErr) {
+      show("error", profileErr.message);
+      return;
+    }
+
+    // 4b) Skapa ansökan i tabellen
     const { error: insErr } = await supabase.from("applications").insert({
       applicant_user_id: user.id,
       company_name: name,
       org_no: org,
       contact_name: contact,
       email,
-      message
+      message,
+      status: "pending"
     });
 
     if(insErr){

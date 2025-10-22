@@ -100,6 +100,7 @@ async function ensureAdmin() {
     whoEl.textContent = "Inte inloggad";
     loginBox.style.display = "flex";
     pendingWrap.style.display = "none";
+    currentAdmin = null;
     return null;
   }
 
@@ -119,10 +120,12 @@ async function ensureAdmin() {
   if (profile.role !== "admin") {
     setAlert("error", "Du har inte admin-behörighet.");
     pendingWrap.style.display = "none";
+    currentAdmin = null;
     return null;
   }
 
   loginBox.style.display = "none";
+  currentAdmin = user;
   return user;
 }
 
@@ -131,7 +134,7 @@ async function listPending() {
   const { data, error } = await supabase
     .from("applications")
     .select("*")
-    .eq("status", "pending")
+    .or("status.eq.pending,status.is.null")
     .order("created_at", { ascending: true });
 
   if (error) {
@@ -164,29 +167,164 @@ async function listPending() {
   pendingWrap.style.display = "block";
 }
 
+let currentAdmin = null;
+
+async function resolveCompanyColumn(options) {
+  for (const column of options) {
+    const { error } = await supabase.from("companies").select(column).limit(1);
+    if (!error) return column;
+    if (!/column .* does not exist/i.test(error.message || "")) {
+      throw error;
+    }
+  }
+  return options[0];
+}
+
 async function approve(id) {
   clearAlert();
-  const { error } = await supabase.rpc("review_application", {
-    p_application_id: id,
-    p_approve: true,
-    p_rejection_reason: null
-  });
-  if (error) {
-    setAlert("error", error.message);
+  const user = currentAdmin || await ensureAdmin();
+  if (!user) return;
+
+  const { data: application, error: appErr } = await supabase
+    .from("applications")
+    .select("*")
+    .eq("id", id)
+    .maybeSingle();
+
+  if (appErr) {
+    setAlert("error", "Kunde inte läsa ansökan: " + appErr.message);
     return;
   }
-  setAlert("ok", "Ansökan godkänd ✅");
-  listPending();
+  if (!application) {
+    setAlert("error", "Ansökan hittades inte.");
+    return;
+  }
+  if (application.status && application.status !== "pending") {
+    setAlert("error", "Ansökan är redan granskad (" + application.status + ").");
+    listPending();
+    return;
+  }
+
+  try {
+    const companyNameColumn = await resolveCompanyColumn(["name", "company_name"]);
+    const orgNoColumn = await resolveCompanyColumn([
+      "org_no",
+      "organisation_no",
+      "organization_no",
+      "organization_number"
+    ]);
+
+    const { data: nameClash, error: nameErr } = await supabase
+      .from("companies")
+      .select("id")
+      .eq(companyNameColumn, application.company_name)
+      .maybeSingle();
+    if (nameErr) throw nameErr;
+    if (nameClash) {
+      setAlert("error", "Ett företag med samma namn finns redan.");
+      return;
+    }
+
+    const { data: orgClash, error: orgErr } = await supabase
+      .from("companies")
+      .select("id")
+      .eq(orgNoColumn, application.org_no)
+      .maybeSingle();
+    if (orgErr) throw orgErr;
+    if (orgClash) {
+      setAlert("error", "Organisationsnumret används redan.");
+      return;
+    }
+
+    const { data: newCompany, error: createErr } = await supabase
+      .from("companies")
+      .insert({
+        [companyNameColumn]: application.company_name,
+        [orgNoColumn]: application.org_no
+      })
+      .select("id")
+      .single();
+
+    if (createErr) throw createErr;
+
+    const companyId = newCompany.id;
+
+    const profilePayload = {
+      user_id: application.applicant_user_id,
+      role: "company_admin",
+      company_id: companyId
+    };
+    if (application.contact_name) {
+      profilePayload.full_name = application.contact_name;
+    }
+
+    const { error: profileErr } = await supabase
+      .from("profiles")
+      .upsert(profilePayload, { onConflict: "user_id" });
+    if (profileErr) throw profileErr;
+
+    const applicationUpdate = { status: "approved" };
+    if ("company_id" in application) applicationUpdate.company_id = companyId;
+    if ("approved_company_id" in application) applicationUpdate.approved_company_id = companyId;
+    if ("reviewed_at" in application) applicationUpdate.reviewed_at = new Date().toISOString();
+    if ("reviewed_on" in application) applicationUpdate.reviewed_on = new Date().toISOString();
+    if ("reviewed_by" in application) applicationUpdate.reviewed_by = user.id;
+    if ("reviewed_by_user_id" in application) applicationUpdate.reviewed_by_user_id = user.id;
+    if ("reviewer_user_id" in application) applicationUpdate.reviewer_user_id = user.id;
+    if ("rejection_reason" in application) applicationUpdate.rejection_reason = null;
+    if ("review_comment" in application) applicationUpdate.review_comment = null;
+
+    const { error: updateErr } = await supabase
+      .from("applications")
+      .update(applicationUpdate)
+      .eq("id", id);
+    if (updateErr) throw updateErr;
+
+    setAlert("ok", "Ansökan godkänd ✅");
+    listPending();
+  } catch (err) {
+    console.error(err);
+    setAlert("error", err.message || "Godkännande misslyckades.");
+  }
 }
 
 async function reject(id) {
   const reason = prompt("Kommentar (valfri):") || null;
   clearAlert();
-  const { error } = await supabase.rpc("review_application", {
-    p_application_id: id,
-    p_approve: false,
-    p_rejection_reason: reason
-  });
+  const user = currentAdmin || await ensureAdmin();
+  if (!user) return;
+
+  const { data: application, error: appErr } = await supabase
+    .from("applications")
+    .select("*")
+    .eq("id", id)
+    .maybeSingle();
+
+  if (appErr) {
+    setAlert("error", "Kunde inte läsa ansökan: " + appErr.message);
+    return;
+  }
+  if (!application) {
+    setAlert("error", "Ansökan hittades inte.");
+    return;
+  }
+
+  const applicationUpdate = {
+    status: "rejected"
+  };
+  if ("rejection_reason" in application) applicationUpdate.rejection_reason = reason;
+  if ("review_comment" in application) applicationUpdate.review_comment = reason;
+  if ("reviewed_at" in application) applicationUpdate.reviewed_at = new Date().toISOString();
+  if ("reviewed_on" in application) applicationUpdate.reviewed_on = new Date().toISOString();
+  if ("reviewed_by" in application) applicationUpdate.reviewed_by = user.id;
+  if ("reviewed_by_user_id" in application) applicationUpdate.reviewed_by_user_id = user.id;
+  if ("reviewer_user_id" in application) applicationUpdate.reviewer_user_id = user.id;
+
+  const { error } = await supabase
+    .from("applications")
+    .update(applicationUpdate)
+    .eq("id", id);
+
   if (error) {
     setAlert("error", error.message);
     return;
