@@ -1,272 +1,243 @@
 <!doctype html>
 <html lang="sv">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>TerraTrade – sälja/byta schaktmassor</title>
-  <meta name="description" content="TerraTrade – ansök om företagskonto och hantera team. Sälja/byta schaktmassor mellan projekt." />
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>TerraTrade – Köp eller sälj schaktmassor</title>
+    <style>
+      :root {
+        --green: #b8cba2;
+        --darkgreen: #2b4222;
+        --accent: #4e8d3a;
+        --text: #1a1a1a;
+        --muted: #333;
+        --white: #fff;
+      }
 
-  <style>
-    :root{
-      --bg:#0b1020;
-      --panel:#0f1530;
-      --card:#11172e;
-      --text:#e7ebf5;
-      --muted:#9aa3b2;
-      --brand:#6aa3ff;
-      --brand-2:#78f0ff;
-      --brand-hover:#5a90e5;
-      --outline:#223058;
-      --ok:#41d3a2;
-      --warn:#ffd06a;
-    }
+      * { box-sizing: border-box; margin: 0; padding: 0; }
 
-    *{box-sizing:border-box}
-    html,body{height:100%}
-    body{
-      margin:0;
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial;
-      color:var(--text);
-      background:
-        radial-gradient(1200px 800px at 70% -10%, #1a2550 0%, transparent 60%),
-        radial-gradient(800px 600px at 0% 100%, rgba(105,170,255,.15), transparent 60%),
-        var(--bg);
-      letter-spacing:.2px;
-    }
+      body {
+        font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+        color: var(--text);
+        background-color: var(--green);
+        line-height: 1.6;
+      }
 
-    /* Layout */
-    .container{max-width:1100px;margin:0 auto;padding:24px}
-    header.nav{
-      position:sticky;top:0;z-index:50;
-      backdrop-filter: blur(8px);
-      background:linear-gradient(180deg, rgba(10,16,32,.75), rgba(10,16,32,.35));
-      border-bottom:1px solid rgba(255,255,255,.06);
-    }
-    .nav-inner{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px 0}
-    .brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--text)}
-    .logo{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--brand),var(--brand-2));display:grid;place-items:center;color:#081028;font-weight:800}
-    .brand span{font-weight:700;font-size:18px}
+      header {
+        background: var(--white);
+        border-bottom: 1px solid #ddd;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 24px;
+        position: sticky;
+        top: 0;
+        z-index: 10;
+      }
 
-    .nav-links{display:flex;gap:14px;flex-wrap:wrap}
-    .link{color:var(--muted);text-decoration:none;font-weight:600;padding:8px 10px;border-radius:8px;border:1px solid transparent}
-    .link:hover{color:var(--text);border-color:var(--outline)}
+      header .logo {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 700;
+        font-size: 18px;
+        text-decoration: none;
+        color: var(--darkgreen);
+      }
 
-    /* Hero */
-    .hero{padding:56px 0 24px}
-    .hero-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:28px}
-    .h1{font-size:40px;line-height:1.1;margin:8px 0 10px}
-    .h1 .grad{background:linear-gradient(135deg,var(--brand),var(--brand-2));-webkit-background-clip:text;background-clip:text;color:transparent}
-    .lead{color:var(--muted);font-size:18px;max-width:640px}
-    .cta{display:flex;gap:12px;flex-wrap:wrap;margin-top:18px}
-    .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 18px;border-radius:12px;font-weight:700;text-decoration:none;border:1px solid var(--outline);transition:transform .05s ease, background .2s ease}
-    .btn:hover{transform:translateY(-1px)}
-    .btn-primary{background:var(--brand);color:#081028;border-color:transparent}
-    .btn-primary:hover{background:var(--brand-hover)}
-    .btn-ghost{background:transparent;color:var(--text)}
-    .mini{font-size:12px;color:var(--muted);margin-top:6px}
+      header .logo span {
+        background: var(--accent);
+        color: var(--white);
+        border-radius: 50%;
+        width: 28px;
+        height: 28px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 800;
+      }
 
-    /* Preview card (höger) */
-    .panel{
-      border:1px solid var(--outline);
-      background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.01)) var(--panel);
-      border-radius:16px;padding:16px;
-      box-shadow:0 30px 60px rgba(0,0,0,.35);
-    }
-    .tag{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border:1px solid var(--outline);border-radius:999px;color:var(--muted);font-weight:700;font-size:12px}
-    .mock{
-      margin-top:12px;border:1px solid var(--outline);border-radius:12px;overflow:hidden;background:var(--card)
-    }
-    .mock .bar{display:flex;gap:8px;padding:10px;border-bottom:1px solid var(--outline)}
-    .dot{width:10px;height:10px;border-radius:999px;background:#f66a6a}
-    .dot:nth-child(2){background:#ffd06a}
-    .dot:nth-child(3){background:#63d48f}
-    .mock .content{padding:16px}
-    .badge{display:inline-flex;gap:6px;align-items:center;padding:6px 10px;border:1px solid var(--outline);border-radius:10px;background:rgba(255,255,255,.03);font-size:12px;color:var(--muted)}
-    .ok{color:var(--ok)}
-    .warn{color:var(--warn)}
+      .login-btn {
+        background: transparent;
+        border: 1px solid var(--darkgreen);
+        color: var(--darkgreen);
+        padding: 6px 14px;
+        border-radius: 6px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: background 0.2s;
+      }
 
-    /* Steps */
-    .section{padding:36px 0}
-    .section h2{margin:0 0 12px;font-size:22px}
-    .muted{color:var(--muted)}
-    .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:10px}
-    .step{background:linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.01)) var(--card);border:1px solid var(--outline);border-radius:16px;padding:16px}
-    .step b{display:block;margin-bottom:6px}
-    .step small{color:var(--muted)}
-    .step .num{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,var(--brand),var(--brand-2));color:#081028;font-weight:800;margin-bottom:8px}
+      .login-btn:hover {
+        background: var(--darkgreen);
+        color: var(--white);
+      }
 
-    /* Roles */
-    .roles{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
-    .role{border:1px solid var(--outline);border-radius:16px;padding:16px;background:rgba(255,255,255,.02)}
-    .role h3{margin:0 0 8px}
-    .role ul{margin:0;padding-left:18px}
-    .role li{margin:6px 0;color:var(--muted)}
+      .hero {
+        background: url('https://images.unsplash.com/photo-1601645188643-097b4a012d1a?auto=format&fit=crop&w=1200&q=60') center/cover no-repeat;
+        color: var(--white);
+        text-align: center;
+        padding: 120px 24px;
+        position: relative;
+      }
 
-    /* Footer */
-    footer{border-top:1px solid rgba(255,255,255,.06);margin-top:40px}
-    .foot{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:22px 0;color:var(--muted);font-size:14px}
+      .hero::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: rgba(0,0,0,0.4);
+      }
 
-    /* Responsive */
-    @media (max-width:900px){
-      .hero-grid{grid-template-columns:1fr}
-    }
-    @media (max-width:700px){
-      .steps,.roles{grid-template-columns:1fr}
-      .h1{font-size:32px}
-    }
+      .hero-content {
+        position: relative;
+        z-index: 2;
+      }
 
-    /* Tiny motion */
-    @keyframes floaty{from{transform:translateY(0)}50%{transform:translateY(-4px)}to{transform:translateY(0)}}
-    .logo{animation:floaty 6s ease-in-out infinite}
-  </style>
-</head>
-<body>
-  <!-- NAV -->
-  <header class="nav">
-    <div class="container nav-inner">
-      <a class="brand" href="#top">
-        <div class="logo">T</div>
-        <span>TerraTrade</span>
-      </a>
-      <nav class="nav-links">
-        <a class="link" href="#hur">Hur det funkar</a>
-        <a class="link" href="#roller">Roller</a>
-        <a class="link" href="#cta">Kom igång</a>
-      </nav>
-    </div>
-  </header>
+      .hero h1 {
+        font-size: 38px;
+        margin-bottom: 12px;
+        font-weight: 700;
+      }
 
-  <main id="top">
-    <div class="container hero">
-      <div class="hero-grid">
-        <!-- Vänster: text -->
-        <div>
-          <div class="tag">sälja / byta schaktmassor</div>
-          <h1 class="h1">
-            Enklare <span class="grad">matchning</span> mellan projekt – ansök, bjud in teamet och kör.
-          </h1>
-          <p class="lead">
-            TerraTrade hjälper entreprenörer att hantera företagsansökningar, användare och
-            flödet för godkännande. Byggt för tydlighet: ansök → granska → bjud in → använd.
-          </p>
-          <div class="cta" id="cta">
-            <a class="btn btn-primary" href="apply.html">Ansök om företagskonto</a>
-            <a class="btn btn-ghost" href="login.html">Logga in</a>
-          </div>
-          <div class="mini">Saknar du sidorna? De kan läggas till som <code>apply.html</code> och <code>login.html</code>.</div>
-        </div>
+      .hero p {
+        font-size: 20px;
+        max-width: 600px;
+        margin: 0 auto;
+      }
 
-        <!-- Höger: “preview” panel -->
-        <aside class="panel">
-          <span class="badge">Förhandsvisning</span>
-          <div class="mock" aria-hidden="true">
-            <div class="bar"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
-            <div class="content">
-              <div class="badge ok">Status: Väntar på godkännande</div>
-              <h3 style="margin:12px 0 6px;">Acme Entreprenad AB</h3>
-              <p class="muted" style="margin:0 0 14px;">Org.nr 559999-1234 • kontakt@acme.se</p>
+      section {
+        padding: 60px 24px;
+        text-align: center;
+      }
 
-              <div class="roles" style="grid-template-columns:1fr 1fr; gap:12px;">
-                <div class="role">
-                  <h4 style="margin:0 0 8px;">Admin</h4>
-                  <ul>
-                    <li>Godkänn ansökningar</li>
-                    <li>Avvisa & lämna kommentar</li>
-                  </ul>
-                </div>
-                <div class="role">
-                  <h4 style="margin:0 0 8px;">Företagsadmin</h4>
-                  <ul>
-                    <li>Bjud in användare</li>
-                    <li>Hantera team</li>
-                  </ul>
-                </div>
-              </div>
+      .section-title {
+        font-size: 26px;
+        margin-bottom: 16px;
+        color: var(--darkgreen);
+      }
 
-              <p class="muted" style="margin-top:12px;">
-                <span class="badge warn">Edge case: Dubblettnamn stoppas</span>
-              </p>
-            </div>
-          </div>
-        </aside>
+      .section-text {
+        max-width: 700px;
+        margin: 0 auto;
+        color: var(--muted);
+        font-size: 16px;
+      }
+
+      .steps {
+        margin-top: 50px;
+        display: grid;
+        gap: 36px;
+        max-width: 700px;
+        margin-inline: auto;
+      }
+
+      .step {
+        background: var(--white);
+        padding: 28px;
+        border-radius: 12px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+      }
+
+      .step-number {
+        font-size: 28px;
+        font-weight: 700;
+        color: var(--accent);
+      }
+
+      .step-title {
+        font-size: 20px;
+        margin: 8px 0;
+        color: var(--darkgreen);
+      }
+
+      .apply-btn {
+        display: inline-block;
+        margin-top: 12px;
+        background: var(--accent);
+        color: var(--white);
+        text-decoration: none;
+        padding: 10px 20px;
+        border-radius: 6px;
+        font-weight: 600;
+        transition: background 0.2s;
+      }
+
+      .apply-btn:hover {
+        background: #3d7030;
+      }
+
+      footer {
+        background: var(--darkgreen);
+        color: var(--white);
+        text-align: center;
+        padding: 24px;
+        font-size: 14px;
+      }
+
+      @media (max-width: 600px) {
+        .hero h1 { font-size: 28px; }
+        .hero p { font-size: 16px; }
+      }
+    </style>
+  </head>
+
+  <body>
+    <header>
+      <a href="#" class="logo"><span>T</span>TerraTrade</a>
+      <a href="login.html" class="login-btn">Logga in</a>
+    </header>
+
+    <section class="hero">
+      <div class="hero-content">
+        <h1>Köp eller sälj schaktmassor</h1>
+        <p>Smidigare, hållbarare och mer effektiv hantering av schaktmassor mellan byggprojekt.</p>
       </div>
-    </div>
+    </section>
 
-    <!-- Hur det funkar -->
-    <section class="section container" id="hur">
-      <h2>Hur det funkar</h2>
-      <p class="muted">Tydliga steg från ansökan till aktiv användning.</p>
+    <section>
+      <h2 class="section-title">Därför finns vi</h2>
+      <p class="section-text">
+        Bygg- och anläggningsbranschen genererar varje år enorma mängder schaktmassor
+        och avfall. Dessa massor transporteras ofta långa sträckor – trots att andra
+        företag i närheten kan behöva exakt samma material.
+        <br><br>
+        Vi finns för att förenkla denna process, minska spill, och koppla ihop aktörer
+        som kan byta eller sälja schaktmassor lokalt.
+        <br><br>
+        Kort sagt: Vi finns för att göra det enklare, smartare och mer hållbart att bygga framtiden.
+      </p>
+    </section>
+
+    <section>
+      <h2 class="section-title">Läs nedan om hur det funkar</h2>
       <div class="steps">
         <div class="step">
-          <div class="num">1</div>
-          <b>Ansökan</b>
-          <small>Företaget skickar in info + kontakt. Konto skapas och ansökan sätts till <i>pending</i>.</small>
+          <div class="step-number">1.</div>
+          <div class="step-title">Ansök om konto</div>
+          <p>Alla företag skapar ett konto via vår ansökningsprocess. När kontot är godkänt kan ni börja använda plattformen.</p>
+          <a href="apply.html" class="apply-btn">Ansök nu</a>
         </div>
+
         <div class="step">
-          <div class="num">2</div>
-          <b>Granskning</b>
-          <small>Admin godkänner (unika företagsnamn krävs) eller avvisar med kommentar.</small>
+          <div class="step-number">2.</div>
+          <div class="step-title">Lägg upp material eller hitta det du behöver</div>
+          <p>Företag kan snabbt annonsera ut sitt överskott – eller söka bland material i närheten via vår karta.</p>
         </div>
+
         <div class="step">
-          <div class="num">3</div>
-          <b>Team & inbjudningar</b>
-          <small>Företagsadmin bjuder in via e-post. Användare sätter lösenord och blir <i>member</i>.</small>
+          <div class="step-number">3.</div>
+          <div class="step-title">Hjälp till att skapa en hållbarare byggbransch</div>
+          <p>Genom att återanvända material har du minskat avfall, sparat resurser och bidragit till en mer cirkulär framtid.</p>
         </div>
       </div>
     </section>
 
-    <!-- Roller -->
-    <section class="section container" id="roller">
-      <h2>Roller</h2>
-      <div class="roles">
-        <div class="role">
-          <h3>Admin</h3>
-          <ul>
-            <li>Översikt & hantera ansökningar</li>
-            <li>Godkänn / Avvisa</li>
-          </ul>
-        </div>
-        <div class="role">
-          <h3>Företagsadmin</h3>
-          <ul>
-            <li>Bjud in & hantera användare</li>
-            <li>Ser endast sitt företag</li>
-          </ul>
-        </div>
-        <div class="role">
-          <h3>Användare (Member)</h3>
-          <ul>
-            <li>Landningssida & Logout</li>
-            <li>Ser endast sitt företag</li>
-          </ul>
-        </div>
-      </div>
-    </section>
-  </main>
+    <footer>
+      © <span id="year"></span> TerraTrade – En hållbar marknadsplats för schaktmassor
+    </footer>
 
-  <footer>
-    <div class="container foot">
-      <span>© <span id="y"></span> TerraTrade</span>
-      <span class="muted">Byggd för enkel, tydlig flödeshantering</span>
-    </div>
-  </footer>
-
-  <script>
-    // år i footer
-    document.getElementById("y").textContent = new Date().getFullYear();
-
-    // Om apply.html/login.html inte finns ännu, visa snällt meddelande
-    function softGuard(selector, text){
-      const a = document.querySelector(selector);
-      if(!a) return;
-      fetch(a.getAttribute("href"), {method:"HEAD"})
-        .then(r => { if(!r.ok) throw 0; })
-        .catch(() => {
-          a.addEventListener("click", (e)=>{ e.preventDefault(); alert(text); });
-        });
-    }
-    softGuard('a[href="apply.html"]', "Ansökningssidan (apply.html) läggs till i nästa steg ✨");
-    softGuard('a[href="login.html"]', "Loginsidan (login.html) läggs till i nästa steg 🔐");
-  </script>
-</body>
+    <script>
+      document.getElementById("year").textContent = new Date().getFullYear();
+    </script>
+  </body>
 </html>
