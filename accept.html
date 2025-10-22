@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="sv">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Acceptera inbjudan – TerraTrade</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root{--bg:#0e1a11;--bg2:#122218;--line:#24432f;--text:#edf5ee;--muted:#b6c7b8;--card:#16271e;--leaf:#50c878;--leaf2:#3ebd94}
+    *{box-sizing:border-box} body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;color:var(--text);background:
+      radial-gradient(1000px 700px at 80% -10%, rgba(47,191,113,.15), transparent 60%),linear-gradient(180deg,var(--bg),var(--bg2));min-height:100svh}
+    .container{max-width:600px;margin:0 auto;padding:24px}
+    .panel{border:1px solid var(--line);background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.01)) var(--card);border-radius:16px;padding:18px;margin-top:40px}
+    button{background:var(--leaf);border:none;color:#082013;padding:10px 14px;border-radius:10px;font-weight:800;cursor:pointer}
+    button:hover{background:var(--leaf2)} .msg{margin-top:12px;padding:10px;border-radius:10px}
+    .err{background:rgba(255,106,106,.12);border:1px solid rgba(255,106,106,.5);color:#ffdede}
+    .ok{background:rgba(80,200,120,.12);border:1px solid rgba(80,200,120,.5);color:#dff7e8}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="panel">
+      <h1>Acceptera inbjudan</h1>
+      <p>Logga in eller skapa konto med samma e-post som inbjudan skickades till. Klicka sedan “Acceptera”.</p>
+      <div class="msg" id="msg" style="display:none"></div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px">
+        <a href="login.html"><button>Logga in</button></a>
+        <button id="acceptBtn">Acceptera</button>
+      </div>
+    </div>
+  </div>
+<script>
+const supabase=window.supabase.createClient(
+  "https://vkapxmpecvmrquockugi.supabase.co",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZrYXB4bXBlY3ZtcnF1b2NrdWdpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjExMjU3MjYsImV4cCI6MjA3NjcwMTcyNn0.VYTNc3gGQLe5KJIP2952I549h9n1SZiycSYQ9MXPdPs"
+);
+const token=new URLSearchParams(location.search).get("token");
+const $=id=>document.getElementById(id); function show(t,txt){const m=$("msg");m.className="msg "+(t==="error"?"err":"ok");m.textContent=txt;m.style.display="block"}
+
+document.getElementById("acceptBtn").onclick=async()=>{
+  if(!token){ show("error","Saknar token i URL:en."); return; }
+  const { data:{ user } }=await supabase.auth.getUser();
+  if(!user){ show("error","Logga in först (samma e-post som inbjudan)."); return; }
+  const { error }=await supabase.rpc("accept_invitation",{ p_token: token });
+  if(error){ show("error", error.message); return; }
+  show("ok","Klart! Du är nu medlem i företaget."); setTimeout(()=>location.href="user.html",1500);
+};
+</script>
+</body>
+</html>
