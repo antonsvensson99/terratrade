@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="sv">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Företagsadmin – Bjud in användare</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root{--bg:#0e1a11;--bg2:#122218;--leaf:#50c878;--leaf2:#3ebd94;--line:#24432f;--text:#edf5ee;--muted:#b6c7b8;--card:#16271e}
+    *{box-sizing:border-box} body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;color:var(--text);background:
+      radial-gradient(1000px 700px at 80% -10%, rgba(47,191,113,.15), transparent 60%),linear-gradient(180deg,var(--bg),var(--bg2));min-height:100svh}
+    .container{max-width:800px;margin:0 auto;padding:18px}
+    .panel{border:1px solid var(--line);background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.01)) var(--card);border-radius:16px;padding:16px;margin-top:20px}
+    input{background:rgba(255,255,255,.03);border:1px solid var(--line);color:var(--text);padding:10px;border-radius:10px;width:100%}
+    button{background:var(--leaf);border:none;color:#082013;padding:10px 14px;border-radius:10px;font-weight:800;cursor:pointer}
+    button:hover{background:var(--leaf2)} .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+    .msg{margin-top:12px;padding:10px;border-radius:10px}
+    .err{background:rgba(255,106,106,.12);border:1px solid rgba(255,106,106,.5);color:#ffdede}
+    .ok{background:rgba(80,200,120,.12);border:1px solid rgba(80,200,120,.5);color:#dff7e8}
+    .muted{color:var(--muted)}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="row"><a href="index.html">← Start</a><a href="login.html">Logga ut / byt konto</a></div>
+    <section class="panel">
+      <h1>Bjud in användare</h1>
+      <p class="muted">Skicka inbjudan via e-post. Mottagaren får en länk och blir <b>member</b> i ditt företag när länken accepteras.</p>
+      <div id="msg" class="msg" style="display:none"></div>
+      <div class="row" style="margin-top:10px">
+        <input id="email" type="email" placeholder="namn@exempel.se" />
+        <button id="inviteBtn">Skapa inbjudan</button>
+      </div>
+      <div id="out" style="margin-top:10px"></div>
+    </section>
+  </div>
+
+<script>
+const supabase=window.supabase.createClient(
+  "https://vkapxmpecvmrquockugi.supabase.co",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZrYXB4bXBlY3ZtcnF1b2NrdWdpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjExMjU3MjYsImV4cCI6MjA3NjcwMTcyNn0.VYTNc3gGQLe5KJIP2952I549h9n1SZiycSYQ9MXPdPs"
+);
+const $=id=>document.getElementById(id);
+function show(t,txt){const m=$("msg");m.className="msg "+(t==="error"?"err":"ok");m.textContent=txt;m.style.display="block"}
+
+async function myCompanyId(){
+  const { data:{ user } } = await supabase.auth.getUser();
+  if(!user){ show("error","Inte inloggad."); return null; }
+  const { data: me, error } = await supabase.from("profiles").select("role, company_id").eq("user_id", user.id).single();
+  if(error){ show("error", error.message); return null; }
+  if(me.role!=="company_admin" && me.role!=="admin"){ show("error","Endast företagsadmin."); return null; }
+  if(!me.company_id){ show("error","Ingen company kopplad."); return null; }
+  return me.company_id;
+}
+
+$("inviteBtn").onclick=async()=>{
+  $("out").textContent="";
+  const email=$("email").value.trim().toLowerCase();
+  if(!email){ show("error","Fyll i e-post."); return; }
+  const companyId=await myCompanyId(); if(!companyId) return;
+  const { data, error } = await supabase.rpc("create_invitation", { p_company_id: companyId, p_invited_email: email });
+  if(error){ show("error", error.message); return; }
+  const token=data;
+  const link=`${location.origin}/accept.html?token=${token}`;
+  show("ok","Inbjudning skapad ✅");
+  $("out").innerHTML=`Dela denna länk med mottagaren:<br><a href="${link}" target="_blank">${link}</a>`;
+};
+</script>
+</body>
+</html>
